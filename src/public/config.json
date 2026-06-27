@@ -2,8 +2,7 @@
   "fieldMapping": {
     "temp1": "Atas",
     "temp2": "Bawah",
-    "temp3": "Udara",
-    "m": "Mortality"
+    "temp3": "Udara"
   },
   "labels": {
     "pageTitle": "Dashboard",
