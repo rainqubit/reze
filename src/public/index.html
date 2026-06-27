@@ -38,16 +38,19 @@
       </div>
     </div>
 
-    <!-- ── Latest Reading: 4 Cards ────────────────── -->
+    <!-- ── Latest Reading ─────────────────────────── -->
     <template x-if="latestReading">
-      <div class="sensor-grid">
-        <template x-for="(f, i) in latestReading.fields" :key="i">
-          <div class="sensor-card">
-            <div class="label" x-text="displayName(f.name)"></div>
-            <div class="value" x-text="f.value + '°C'" :style="'color:' + colors[i % colors.length]"></div>
-            <div class="color-bar" :style="'background:' + colors[i % colors.length]"></div>
-          </div>
-        </template>
+      <div>
+        <div style="text-align:center;color:#9ca3af;font-size:0.8rem;margin-bottom:0.5rem;" x-text="formatTime(latestReading.time)"></div>
+        <div class="sensor-grid">
+          <template x-for="(f, i) in latestReading.fields" :key="i">
+            <div class="sensor-card">
+              <div class="label" x-text="displayName(f.name)"></div>
+              <div class="value" x-text="f.value + '°C'" :style="'color:' + colors[i % colors.length]"></div>
+              <div class="color-bar" :style="'background:' + colors[i % colors.length]"></div>
+            </div>
+          </template>
+        </div>
       </div>
     </template>
     <div x-show="!latestReading" class="card" style="text-align:center;color:#6b7280;margin-bottom:1.25rem;" x-text="labels.noData"></div>

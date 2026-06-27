@@ -5,16 +5,16 @@
     "temp3": "Udara"
   },
   "labels": {
-    "pageTitle": "Dashboard",
-    "title": "Sensor Dashboard",
+    "pageTitle": "Sensor Kolam",
+    "title": "Sensor Kolam",
     "chartTitle": "Realtime",
     "allReadings": "Semua Data",
     "noData": "No data yet",
-    "noReadings": "No readings yet",
+    "noReadings": "No data yet",
     "refresh": "Refresh",
     "loading": "Loading",
     "footer": "Reze · Dark theme",
-    "readingsSuffix": "readings"
+    "readingsSuffix": "Data"
   },
   "dataFile": "sensors.txt"
 }
