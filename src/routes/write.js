@@ -109,7 +109,7 @@ router.post('/write', async (c) => {
       bytesWritten: content.length,
       fields: parsedFields,
       time,
-      timeIsServer,
+      timeIsServer: true,
     });
   } catch (err) {
     if (err instanceof SyntaxError) {
