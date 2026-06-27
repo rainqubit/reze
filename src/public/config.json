@@ -1,0 +1,8 @@
+{
+  "fieldMapping": {
+    "temp1": "Surface Temp",
+    "temp2": "Bottom Temp",
+    "temp3": "Air Temp",
+    "m": "Mortality"
+  }
+}

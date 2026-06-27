@@ -7,13 +7,19 @@ const router = new Hono();
 // POST /api/write — parses and writes sensor-style data to a file
 //
 // Expected data format:
-//   name value|name value|name value|...|name value|time
+//   name value|name value|...|name value|unix_timestamp
+//
+// The last segment is a Unix epoch timestamp (seconds). The dashboard
+// formats it as "day month year hh:mm:ss" automatically.
 //
 // Examples:
-//   "temp 25|humidity 80|zone 1|12:30"                   ← 3 fields + time
-//   "temp 25|humidity 80|pressure 1013|zone 1|12:30"     ← 4 fields + time
+//   "temp1 22.5|temp2 18.3|temp3 25.1|m 3|1782637200"    ← 4 fields + epoch
+//   "temp1 22.5|temp2 18.3|1782637200"                     ← 2 fields + epoch
 //
-// Body (JSON):  { "path": "sensors.txt", "data": "temp 25|humidity 80|pressure 1013|zone 1|12:30" }
+// Field names (temp1, temp2, temp3, m, ...) are mapped to display labels
+// by the client via /config.json.
+//
+// Body (JSON):  { "path": "sensors.txt", "data": "temp1 22.5|temp2 18.3|temp3 25.1|m 3|1782637200" }
 // Query:       ?mode=append   (defaults to overwrite)
 router.post('/write', async (c) => {
   try {
