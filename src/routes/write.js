@@ -23,16 +23,20 @@ try {
 // Expected data format:
 //   name value|name value|...|name value|unix_timestamp
 //
-// The last segment is a Unix epoch timestamp (seconds). The dashboard
-// formats it as "day month year hh:mm:ss" automatically.
+// If data ends with a pipe (|), the last segment is treated as the
+// timestamp slot (may be empty — server fills it with current time).
+// If data does NOT end with a pipe and has 3+ segments, the last
+// segment is treated as the timestamp.
+// Otherwise, no timestamp is expected and the server auto-fills it.
 //
-// If the timestamp segment is empty, the server will fill it with the
-// current server time automatically.
+// The timestamp is a Unix epoch (seconds). The dashboard formats it
+// as "day month year hh:mm:ss" automatically.
 //
 // Examples:
 //   "temp1 22.5|temp2 18.3|temp3 25.1|m 3|1782637200"    ← 4 fields + epoch
 //   "temp1 22.5|temp2 18.3|1782637200"                     ← 2 fields + epoch
-//   "temp1 22.5|temp2 18.3|"                                ← 2 fields, server fills time
+//   "temp1 22.5|temp2 18.3|"                                ← 2 fields, explicit empty time slot
+//   "temp1 22.5|temp2 18.3"                                 ← 2 fields, no time sent
 //
 // Field names (temp1, temp2, temp3, m, ...) are mapped to display labels
 // by the client via /config.json.
@@ -55,20 +59,37 @@ router.post('/write', async (c) => {
     // ── Parse pipe-delimited data ──────────────────────────────────
     // Format:  field value|field value|...|field value|time
     const parts = data.split('|');
-    if (parts.length < 3) {
+    const hasTrailingPipe = data.endsWith('|');
+
+    // Require at least one field segment
+    if (parts.length < 1 || (parts.length === 1 && !parts[0].includes(' '))) {
       return c.json({
-        error: '"data" must contain at least 2 name-value segments and a time segment separated by "|"',
+        error: '"data" must contain at least one "name value" pair',
         hint: 'Expected format: name value|name value|...|time  (e.g. "temp 25|zone 1|12:30")',
       }, 400);
     }
 
-    // Last segment is the time, everything before it is name-value pairs
-    const timeRaw = parts.at(-1).trim();
-    const fields = parts.slice(0, -1);
+    let time;
+    let timeIsServer;
+    let fields;
 
-    // If timestamp is empty, fill it with current server time (Unix epoch seconds)
-    const time = timeRaw || String(Math.floor(Date.now() / 1000));
-    const timeIsServer = !timeRaw;
+    if (hasTrailingPipe) {
+      // Data ends with "|" — the last (possibly empty) segment is the timestamp slot
+      time = parts.at(-1).trim();
+      timeIsServer = !time;
+      if (timeIsServer) time = String(Math.floor(Date.now() / 1000));
+      fields = parts.slice(0, -1);
+    } else if (parts.length >= 3) {
+      // Traditional format: …|…|timestamp  (last segment is the timestamp)
+      time = parts.at(-1).trim();
+      timeIsServer = false;
+      fields = parts.slice(0, -1);
+    } else {
+      // No timestamp sent — all parts are fields, server fills the time
+      time = String(Math.floor(Date.now() / 1000));
+      timeIsServer = true;
+      fields = parts;
+    }
 
     // Parse each name-value pair: must contain a space separating name from value
     const parsedFields = [];
