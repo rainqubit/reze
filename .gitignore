@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Runtime data (written by /api/write)
+data/
+
 # Environment variables
 .env
 .env.local
