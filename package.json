@@ -1,0 +1,17 @@
+{
+  "name": "reze",
+  "version": "1.0.0",
+  "description": "Hono project with Alpine.js",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.0",
+    "hono": "^4.6.0"
+  }
+}
