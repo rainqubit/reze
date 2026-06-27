@@ -1,8 +1,8 @@
 {
   "fieldMapping": {
     "temp1": "Atas",
-    "temp2": "Bawah",
-    "temp3": "Udara"
+    "temp2": "Udara",
+    "temp3": "Bawah"
   },
   "labels": {
     "pageTitle": "Sensor Kolam",
