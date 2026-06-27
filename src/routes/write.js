@@ -12,9 +12,13 @@ const router = new Hono();
 // The last segment is a Unix epoch timestamp (seconds). The dashboard
 // formats it as "day month year hh:mm:ss" automatically.
 //
+// If the timestamp segment is empty, the server will fill it with the
+// current server time automatically.
+//
 // Examples:
 //   "temp1 22.5|temp2 18.3|temp3 25.1|m 3|1782637200"    ← 4 fields + epoch
 //   "temp1 22.5|temp2 18.3|1782637200"                     ← 2 fields + epoch
+//   "temp1 22.5|temp2 18.3|"                                ← 2 fields, server fills time
 //
 // Field names (temp1, temp2, temp3, m, ...) are mapped to display labels
 // by the client via /config.json.
@@ -51,9 +55,9 @@ router.post('/write', async (c) => {
     const timeRaw = parts.at(-1).trim();
     const fields = parts.slice(0, -1);
 
-    if (!timeRaw) {
-      return c.json({ error: 'Time segment (last field) must not be empty' }, 400);
-    }
+    // If timestamp is empty, fill it with current server time (Unix epoch seconds)
+    const time = timeRaw || String(Math.floor(Date.now() / 1000));
+    const timeIsServer = !timeRaw;
 
     // Parse each name-value pair: must contain a space separating name from value
     const parsedFields = [];
@@ -74,7 +78,7 @@ router.post('/write', async (c) => {
 
     // ── Build the line to write ────────────────────────────────────
     const fieldLine = parsedFields.map((f) => `${f.name} ${f.value}`).join('|');
-    const content = `${fieldLine}|${timeRaw}\n`;
+    const content = `${fieldLine}|${time}\n`;
 
     // Resolve the file path into the <project>/data/ directory
     const baseDir = resolve(process.cwd(), 'data');
@@ -103,7 +107,8 @@ router.post('/write', async (c) => {
       mode,
       bytesWritten: content.length,
       fields: parsedFields,
-      time: timeRaw,
+      time,
+      timeIsServer,
     });
   } catch (err) {
     if (err instanceof SyntaxError) {
