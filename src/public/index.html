@@ -44,7 +44,7 @@
         <template x-for="(f, i) in latestReading.fields" :key="i">
           <div class="sensor-card">
             <div class="label" x-text="displayName(f.name)"></div>
-            <div class="value" x-text="f.value" :style="'color:' + colors[i % colors.length]"></div>
+            <div class="value" x-text="f.value + '°C'" :style="'color:' + colors[i % colors.length]"></div>
             <div class="color-bar" :style="'background:' + colors[i % colors.length]"></div>
           </div>
         </template>
@@ -125,8 +125,7 @@ function dashboard() {
     formatTimeShort(ts) {
       if (!ts) return '';
       const d = new Date(parseInt(ts) * 1000);
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      return `${d.getDate()} ${months[d.getMonth()]} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     },
 
     fieldColor(name) {
