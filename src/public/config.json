@@ -1,8 +1,21 @@
 {
   "fieldMapping": {
-    "temp1": "Surface Temp",
-    "temp2": "Bottom Temp",
-    "temp3": "Air Temp",
+    "temp1": "Atas",
+    "temp2": "Bawah",
+    "temp3": "Udara",
     "m": "Mortality"
-  }
+  },
+  "labels": {
+    "pageTitle": "Dashboard",
+    "title": "Sensor Dashboard",
+    "chartTitle": "Realtime",
+    "allReadings": "Semua Data",
+    "noData": "No data yet",
+    "noReadings": "No readings yet",
+    "refresh": "Refresh",
+    "loading": "Loading",
+    "footer": "Reze · Dark theme",
+    "readingsSuffix": "readings"
+  },
+  "dataFile": "sensors.txt"
 }

@@ -1,13 +1,79 @@
-/* ── Layout ─────────────────────────────────────────── */
+/* ── Dark Theme ─────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #0a0a0a;
+  color: #f5f5f5;
+  min-height: 100vh;
+  margin-inline: 1rem;
+  margin-block: 2rem;
 }
 
-/* ── Chart container ────────────────────────────────── */
+/* ── Cards ──────────────────────────────────────────── */
+.card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+.header .sub {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.15rem;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  background: #f97316;
+  color: #fff;
+}
+.btn:hover { background: #ea580c; }
+.btn:disabled { opacity: 0.4; pointer-events: none; }
+.btn .spinner { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Chart ──────────────────────────────────────────── */
+.chart-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.chart-card h2 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
 .chart-wrap {
   position: relative;
   width: 100%;
-  max-width: 100%;
+  min-height: 240px;
 }
 .chart-wrap canvas {
   display: block;
@@ -15,57 +81,107 @@ body {
   max-height: 320px;
 }
 
-/* ── Field badge ────────────────────────────────────── */
-.field-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
+/* ── Sensor Cards (4 side by side) ──────────────────── */
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.sensor-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  transition: border-color 0.15s;
+}
+.sensor-card:hover {
+  border-color: #f97316;
+}
+.sensor-card .label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+.sensor-card .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.sensor-card .color-bar {
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 0.5rem;
+  width: 40%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* ── Color dots for legend ──────────────────────────── */
-.color-dot {
+@media (min-width: 640px) {
+  .sensor-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 768px) {
+  .chart-wrap canvas { max-height: 400px; }
+}
+
+/* ── Section Title ──────────────────────────────────── */
+.sec-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+/* ── Reading Rows ───────────────────────────────────── */
+.reading-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.reading-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #141414;
+  border: 1px solid #222;
+  transition: border-color 0.1s;
+  font-size: 0.8rem;
+}
+.reading-row:hover {
+  border-color: #f97316;
+}
+.reading-row .rtime {
+  color: #9ca3af;
+  font-weight: 600;
+  min-width: 6rem;
+  flex-shrink: 0;
+}
+.reading-row .rfields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+}
+.reading-row .rfield {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #d1d5db;
+}
+.reading-row .rfield .dot {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-
-/* ── Reading row in the list ────────────────────────── */
-.reading-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 0.75rem;
-  border-radius: 0.5rem;
-  background: #f9fafb;
-  border: 1px solid #f3f4f6;
-  transition: background 0.15s;
-}
-.reading-row:hover {
-  background: #f3f4f6;
-}
-.reading-row .time-col {
+.reading-row .rfield .val {
   font-weight: 600;
-  color: #6b7280;
-  font-size: 0.8rem;
-  min-width: 3.5rem;
-}
-.reading-row .fields-col {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-}
-
-/* ── Responsive tweaks ──────────────────────────────── */
-@media (min-width: 768px) {
-  .chart-wrap canvas {
-    max-height: 400px;
-  }
+  color: #f5f5f5;
 }
