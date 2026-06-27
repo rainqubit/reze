@@ -16,7 +16,7 @@ app.get('/api/upload', (c) => {
   });
 });
 
-const port = 80;
+const port = 3000;
 console.log(`Server running on http://localhost:${port}`);
 
 serve({
