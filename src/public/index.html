@@ -30,6 +30,18 @@
     </div>
 
 
+    <!-- ── Time range pills ───────────────────────── -->
+    <div class="pill-group">
+      <template x-for="r in timeRanges" :key="r.key">
+        <button
+          @click="setRange(r.key)"
+          class="pill"
+          :class="{ active: timeRange === r.key }"
+          x-text="r.label"
+        ></button>
+      </template>
+    </div>
+
     <!-- ── Chart ──────────────────────────────────── -->
     <div class="chart-card">
       <h2 x-text="labels.chartTitle"></h2>
@@ -94,6 +106,13 @@ function dashboard() {
     loading: false,
     chart: null,
     fieldMapping: {},
+    timeRange: '24h',
+    timeRanges: [
+      { key: '6h', label: '6 Hours' },
+      { key: '24h', label: '24 Hours' },
+      { key: '72h', label: '3 Days' },
+    ],
+    _allReadings: [],
     labels: {
       pageTitle: 'Dashboard',
       title: 'Sensor Dashboard',
@@ -108,8 +127,25 @@ function dashboard() {
     },
     colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
 
+    get readings() {
+      // Filter _allReadings by selected time range
+      if (this._allReadings.length === 0) return [];
+      const rangeSec = { '6h': 21600, '24h': 86400, '72h': 259200 }[this.timeRange] || 86400;
+      const latest = parseInt(this._allReadings[this._allReadings.length - 1].time);
+      return this._allReadings.filter((r) => latest - parseInt(r.time) <= rangeSec);
+    },
+
+    get totalReadings() {
+      return this.readings.length;
+    },
+
     get latestReading() {
       return this.readings.length > 0 ? this.readings[this.readings.length - 1] : null;
+    },
+
+    setRange(key) {
+      this.timeRange = key;
+      this.$nextTick(() => this.renderChart());
     },
 
     displayName(rawName) {
@@ -157,8 +193,7 @@ function dashboard() {
         const res = await fetch('/api/readings?path=' + encodeURIComponent(this.dataFile));
         const json = await res.json();
         if (json.error) throw new Error(json.error);
-        this.readings = json.readings || [];
-        this.totalReadings = json.total || 0;
+        this._allReadings = json.readings || [];
         this.$nextTick(() => {
           this.renderChart();
           requestAnimationFrame(() => { this.loading = false; });

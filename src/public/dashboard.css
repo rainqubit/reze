@@ -54,6 +54,34 @@ body {
 .btn .spinner { animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Time range pills ───────────────────────────────── */
+.pill-group {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+.pill {
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid #333;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+  background: transparent;
+  color: #9ca3af;
+}
+.pill:hover {
+  border-color: #f97316;
+  color: #f5f5f5;
+}
+.pill.active {
+  background: #f97316;
+  border-color: #f97316;
+  color: #fff;
+}
+
 /* ── Chart ──────────────────────────────────────────── */
 .chart-card {
   background: #1a1a1a;
