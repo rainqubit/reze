@@ -1,14 +1,25 @@
 import { readFile } from 'node:fs/promises';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve, normalize } from 'node:path';
-import { existsSync } from 'node:fs';
 import { Hono } from 'hono';
 
 const router = new Hono();
 
+// Read the data file path from config.json at startup
+let dataFile = 'sensors.txt';
+try {
+  const configPath = resolve(process.cwd(), 'src', 'public', 'config.json');
+  const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+  if (config.dataFile) dataFile = config.dataFile;
+} catch (_) {
+  // Fall back to default if config cannot be read
+}
+
 // GET /api/readings?path=sensors.txt  — returns all parsed readings from a data file
+// If no path query param is provided, the file configured in /config.json (dataFile) is used.
 router.get('/readings', async (c) => {
   try {
-    const filePath = c.req.query('path') || 'sensors.txt';
+    const filePath = c.req.query('path') || dataFile;
 
     // Resolve the file path into the <project>/data/ directory
     const baseDir = resolve(process.cwd(), 'data');

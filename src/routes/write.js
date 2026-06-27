@@ -1,10 +1,24 @@
 import { writeFile, appendFile, mkdir } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { resolve, normalize, dirname } from 'node:path';
 import { Hono } from 'hono';
 
 const router = new Hono();
 
+// Read the data file path from config.json at startup
+let dataFile = 'sensors.txt';
+try {
+  const configPath = resolve(process.cwd(), 'src', 'public', 'config.json');
+  const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+  if (config.dataFile) dataFile = config.dataFile;
+} catch (_) {
+  // Fall back to default if config cannot be read
+}
+
 // POST /api/write — parses and writes sensor-style data to a file
+//
+// The output file path is configured via /config.json (dataFile field).
+// Default: sensors.txt
 //
 // Expected data format:
 //   name value|name value|...|name value|unix_timestamp
@@ -23,16 +37,13 @@ const router = new Hono();
 // Field names (temp1, temp2, temp3, m, ...) are mapped to display labels
 // by the client via /config.json.
 //
-// Body (JSON):  { "path": "sensors.txt", "data": "temp1 22.5|temp2 18.3|temp3 25.1|m 3|1782637200" }
+// Body (JSON):  { "data": "temp1 22.5|temp2 18.3|temp3 25.1" }
 // Query:       ?mode=append   (defaults to overwrite)
 router.post('/write', async (c) => {
   try {
-    const { path: filePath, data } = await c.req.json();
+    const { data } = await c.req.json();
 
     // Validate required fields
-    if (!filePath || typeof filePath !== 'string') {
-      return c.json({ error: 'Missing or invalid "path" in request body' }, 400);
-    }
     if (!data || typeof data !== 'string') {
       return c.json({ error: 'Missing or invalid "data" in request body (must be a string)' }, 400);
     }
@@ -82,7 +93,7 @@ router.post('/write', async (c) => {
 
     // Resolve the file path into the <project>/data/ directory
     const baseDir = resolve(process.cwd(), 'data');
-    const fullPath = normalize(resolve(baseDir, filePath));
+    const fullPath = normalize(resolve(baseDir, dataFile));
 
     // Security: prevent directory traversal
     if (!fullPath.startsWith(baseDir)) {
@@ -103,7 +114,7 @@ router.post('/write', async (c) => {
 
     return c.json({
       status: 'ok',
-      path: filePath,
+      path: dataFile,
       mode,
       bytesWritten: content.length,
       fields: parsedFields,
