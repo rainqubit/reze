@@ -20,12 +20,23 @@ try {
 router.get('/readings', async (c) => {
   try {
     const filePath = c.req.query('path') || dataFile;
+    const range = c.req.query('range') || '24h';
+    const limit = parseInt(c.req.query('limit') || '50', 10);
+    const offset = parseInt(c.req.query('offset') || '0', 10);
 
-    // Resolve the file path into the <project>/data/ directory
+    const rangeSecs = {
+      '6h': 21600,
+      '12h': 43200,
+      '24h': 86400,
+      '72h': 259200,
+      '168h': 604800,
+      'all': Infinity
+    };
+    const maxAge = rangeSecs[range] || 86400;
+
     const baseDir = resolve(process.cwd(), 'data');
     const fullPath = normalize(resolve(baseDir, filePath));
 
-    // Security: prevent directory traversal
     if (!fullPath.startsWith(baseDir)) {
       return c.json({ error: 'Path traversal is not allowed' }, 403);
     }
@@ -37,7 +48,7 @@ router.get('/readings', async (c) => {
     const raw = await readFile(fullPath, 'utf-8');
     const lines = raw.split('\n').filter((l) => l.trim().length > 0);
 
-    const readings = lines.map((line) => {
+    const allReadings = lines.map((line) => {
       const parts = line.split('|');
       const time = parts.at(-1).trim();
       const fields = parts.slice(0, -1).map((seg) => {
@@ -53,10 +64,29 @@ router.get('/readings', async (c) => {
       return { fields, time };
     });
 
+    // Filter by time range
+    let filteredReadings = allReadings;
+    if (filteredReadings.length > 0 && maxAge !== Infinity) {
+      const latestTime = parseInt(filteredReadings[filteredReadings.length - 1].time, 10);
+      filteredReadings = filteredReadings.filter((r) => {
+        return (latestTime - parseInt(r.time, 10)) <= maxAge;
+      });
+    }
+
+    const total = filteredReadings.length;
+
+    // Apply pagination (newest first for slicing, but we want the returned page to be oldest-first for chart)
+    filteredReadings.reverse();
+    const paginatedReadings = filteredReadings.slice(offset, offset + limit);
+    paginatedReadings.reverse();
+
+    const hasMore = offset + limit < total;
+
     return c.json({
       file: filePath,
-      total: readings.length,
-      readings,
+      total,
+      hasMore,
+      readings: paginatedReadings,
     });
   } catch (err) {
     return c.json({ error: err.message }, 500);
